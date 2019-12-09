@@ -20,9 +20,22 @@ def sendsms(mobilelist,content):
         m = hashlib.md5()
         m.update('DXX-BBX-103-20384055649')
         pwd = m.hexdigest().upper()
-        content = '%s' % (content)
+        send_data = {
+            "msgtype": "markdown",
+            "markdown": {
+                "title": "prometheus_alert",
+                "text": "Alarm procedure: prometheus_alert \n" +
+                        "*Alarm level*: %s \n\n" % content['labels']['severity'] +
+                        "*Problem pod*: %s \n\n" % content['pod'] +
+                        "*namespace*: %s \n\n" % content['namespace'] +
+                        "*Alarm describe*: %s \n\n" % content['description'] +
+                        "*Start time*: %s \n\n" % arrow.get(content['startsAt']).to('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss ZZ') +
+                        "*End time*: %s \n" % arrow.get(content['endsAt']).to('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss ZZ')
+            }
+         }
+
         for mobile in mobileToList:
-            data = {'sn':'DXX-BBX-103-20384','pwd':pwd,'mobile':mobile,'content':content.encode('gbk')}
+            data = {'sn':'DXX-BBX-103-20384','pwd':pwd,'mobile':mobile,'content':send_data.encode('gbk')}
             body = urllib.urlencode(data)
             request = requests.get(URL,body)
         return 'success'
