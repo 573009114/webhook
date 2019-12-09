@@ -3,6 +3,7 @@ import sys
 import urllib
 import requests
 import time
+import json
 
 from flask import Flask
 from flask import request
@@ -26,15 +27,17 @@ def sendsms(mobilelist,content):
             request = requests.get(URL,body)
         return 'success'
 
+@app.route('/send', methods=['POST'])
 def send():
-    data=json.loads(request.data)
-    mobile=data['mobile']
+    data=json.loads(request.get_data())
+    mobilelist=data['mobile']
     alerts=data['alerts']
-    for output in alerts:
+    for content in alerts:
         try:
-            sendsms(mobile,output)
-        except Exception as e:
-            return e
+            result=sendsms(mobilelist,content)
+            return result
+        except TypeError:
+            return 'sms type error'
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
